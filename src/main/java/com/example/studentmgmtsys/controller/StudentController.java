@@ -1,11 +1,13 @@
 package com.example.studentmgmtsys.controller;
 
 import com.example.studentmgmtsys.model.Student;
+import com.example.studentmgmtsys.pojo.StudentDetailRequestPojo;
 import com.example.studentmgmtsys.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "api/v1/student")
@@ -25,13 +27,26 @@ public class StudentController {
 
     @GetMapping("/getStudents")
     public List<Student> getStudents(){
+
     return studentService.getStudents();
     }
-
+/*
     @PostMapping
     //@requestbody ley user ley deyako student jason lai student variable ma store garxa
     public void registerNewStudent(@RequestBody Student student){
     studentService.addStudent(student);
+    }
+    /*
+ */
+    //yasre pojo ko through bata garda ne vo
+    @PostMapping()
+    public void saveStudentDetails(@RequestBody StudentDetailRequestPojo studentDetailRequestPojo){
+        studentService.saveStudentDetails(studentDetailRequestPojo);
+    }
+
+    @GetMapping("{studentId}")
+    public Optional<Student> getStudentById(@PathVariable("studentId") Long student_id ){
+        return studentService.getStudentById(student_id);
     }
 
     @DeleteMapping(path="{studentId}")
@@ -46,5 +61,7 @@ public class StudentController {
             @RequestParam(required = false) String email){
         studentService.updateStudent(student_id, student_name, email);
     }
+
+
 }
 

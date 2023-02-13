@@ -1,13 +1,13 @@
 package com.example.studentmgmtsys.service;
 
 import com.example.studentmgmtsys.model.Student;
+import com.example.studentmgmtsys.pojo.StudentDetailRequestPojo;
 import com.example.studentmgmtsys.repo.StudentRepo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,9 +16,13 @@ import java.util.Optional;
 public class StudentService {
     //for dynamic data
     private final StudentRepo studentRepo;
+    private final StudentDetailRequestPojo studentDetailRequestPojo;
+    private final ObjectMapper objectMapper;
     @Autowired
-    public StudentService(StudentRepo studentRepo) {
+    public StudentService(StudentRepo studentRepo, StudentDetailRequestPojo studentDetailRequestPojo, ObjectMapper objectMapper) {
         this.studentRepo = studentRepo;
+        this.studentDetailRequestPojo = studentDetailRequestPojo;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -39,10 +43,12 @@ public class StudentService {
 //    }
 
     //for getting all students
+
     public List<Student> getStudents(){
+
         return studentRepo.findAll(); //returns a list
     }
-
+/*
     public void addStudent(Student student) {
         //ctr+alt+v object banauna
         //same word change garna shift+F6
@@ -53,6 +59,16 @@ public class StudentService {
         }
         studentRepo.save(student);
 //        System.out.println(student);
+    }
+*/
+
+    public void saveStudentDetails(StudentDetailRequestPojo studentDetailRequestPojo) {
+       Student student;
+       if(studentDetailRequestPojo.getStudent_id()!=null){
+           student=studentRepo.findById(studentDetailRequestPojo.getStudent_id()).orElse(new Student());
+       }
+       student=objectMapper.convertValue(studentDetailRequestPojo,Student.class);
+       studentRepo.save(student);
     }
 
     public void deleteStudent(Long student_id) {
@@ -85,6 +101,17 @@ public class StudentService {
             }
             student.setEmail(email);
         }
+    }
+
+
+    public Optional<Student> getStudentById(Long student_id) {
+        boolean exists=studentRepo.existsById(student_id);
+        if(!exists){
+            throw new IllegalStateException(
+                    "student with id "+student_id+"doesn't exists"
+            );
+        }
+        return studentRepo.findById(student_id);
     }
 }
 
